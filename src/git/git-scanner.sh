@@ -22,20 +22,22 @@ specificRepoDir="$repoDirectory/$repoName"
 rm -rf "$specificRepoDir"
 
 git clone ${repoUrl} ${specificRepoDir}
-cd "$specificRepoDir"
 
 resultName=${companyName}_${provider}_${repoName}.txt
 
 # Seems to only work locally(by cloning repos)
-gitleaks detect -v --config "/Users/kenertkaru/Documents/personal-projects/Wabadus-Hackathon/src/git/gitleaks.toml" > $resultName
+gitleaks detect -v --config ./gitleaks.toml --source $specificRepoDir > $resultName
+# gitleaks detect -v --config "/Users/kenertkaru/Documents/personal-projects/Wabadus-Hackathon/src/git/gitleaks.toml" > $resultName
 # gitleaks detect -v "$repoUrl" --config "/Users/kenertkaru/Documents/personal-projects/Wabadus-Hackathon/src/git/gitleaks.toml" > $resultName
 
 # only add to results, if the file has contents
 if test -s "./$resultName"; then
-    mv $resultName "../../results"
+    mv $resultName $resultsDirectory
+else
+    rm $resultName 
 fi
 
-cd ..
-rm -rf "$repoName"
+
+rm -rf "$specificRepoDir"
 
 
