@@ -111,4 +111,4 @@ burp_process.terminate()
 # Write the results to a log file
 with open("output.txt", "w") as f:
     f.write("Results of 2fa test:\n")
-    f.write("output\n\n")
+    f.write(output, "\n\n")
