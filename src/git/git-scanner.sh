@@ -21,6 +21,8 @@ specificRepoDir="$repoDirectory/$repoName"
 # delete if already exists
 rm -rf "$specificRepoDir"
 
+# really bad solution, we could just pass the repo url to the command instead
+# so we wouldnt have to download it :) 
 git clone ${repoUrl} ${specificRepoDir}
 cd "$specificRepoDir"
 
