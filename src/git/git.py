@@ -17,7 +17,7 @@ class GIT_PROVIDER(enum.Enum):
 
 
 # from which providers to search from
-scan_repos: list[GIT_PROVIDER] = [GIT_PROVIDER.GITHUB]
+scan_repos: list[GIT_PROVIDER] = [GIT_PROVIDER.GITHUB, GIT_PROVIDER.GITLAB]
 if len(scan_repos) == 0:
     raise Exception("scan_repos not defined")
     
