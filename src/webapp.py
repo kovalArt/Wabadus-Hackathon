@@ -1,10 +1,9 @@
 import sys
 import nmap
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 import subprocess
 from zapv2 import ZAPv2
 import time
+import requests 
 
 
 class WebScanner:
@@ -115,11 +114,56 @@ class WebScanner:
             #             print("=============")
 
     def get_dirs(self):
+        try: 
+            zap = ZAPv2()
+            scanner = zap.spider.scan(self.domain)
+            while (int(zap.spider.status(scanner)) < 100):
+                time.sleep(1)
+            self.web_dirs = zap.spider.results(scanner)
+            return self.web_dirs
+        except Exception as ex:
+            raise ex
 
-        return self.web_dirs
-    
-    def xss_payloads_check(self):
-        pass
+    def xss_payloads_check(self, target_url):
+        base_url = 'http://localhost:8080/'
+
+        payload = '<script>alert("XSS Vulnerability Found!");</script>'
+
+        # Set up the ZAP API endpoints for the spider and active scan
+        spider_url = base_url + '/JSON/spider/action/scan/?url=' + target_url
+        scan_url = base_url + '/JSON/ascan/action/scan/?url=' + target_url
+
+        response = requests.get(base_url + '/JSON/core/newSession/')
+        session_id = response.json()['session']
+
+        # Configure the ZAP spider to crawl the target URL
+        response = requests.get(spider_url)
+        scan_id = response.json()['scan']
+
+        # Wait for the spider to complete
+        while (True):
+            response = requests.get(base_url + '/JSON/spider/view/status/?scanId=' + str(scan_id))
+            status = response.json()['status']
+            if (status == '100'):
+                break
+
+        # Configure the ZAP active scanner to scan the target URL for XSS vulnerabilities
+        response = requests.get(scan_url)
+        scan_id = response.json()['scan']
+
+        # Wait for the scan to complete
+        while (True):
+            response = requests.get(base_url + '/JSON/ascan/view/status/?scanId=' + str(scan_id))
+            status = response.json()['status']
+            if (status == '100'):
+                break
+
+        # Retrieve the ZAP alerts for the session and print any XSS vulnerabilities found
+        response = requests.get(base_url + '/JSON/core/alert/view/alerts/?baseurl=' + target_url)
+        alerts = response.json()
+        for alert in alerts:
+            if (alert['risk'] == 'High' and alert['alert'] == 'XSS'):
+                print('XSS Vulnerability Found: ' + alert['url'])
 
     def sqli_check(self):
         pass
