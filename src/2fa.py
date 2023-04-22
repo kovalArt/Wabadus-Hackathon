@@ -7,9 +7,13 @@ import requests
 # Set the target URL and port
 target_url = "https://example.com"
 
-# Define a list of usernames to test
-usernames = ["user1", "user2", "user3"]
-password = "password1"
+# Read in usernames from file
+with open("../wordlists/usernames.txt", "r") as f:
+    usernames = [line.strip() for line in f]
+
+# Read in passwords from file
+with open("../wordlists/passwords.txt", "r") as f:
+    passwords = [line.strip() for line in f]
 
 # Set the Burp Suite path and command to start it in headless mode
 burp_path = "/path/to/burp.jar"
@@ -58,7 +62,6 @@ for username in usernames:
     # Send a login request to the target URL with the username
     # Assumes the login page is at a path like "/login"
     # Assumes the login form has fields for "username" and "password"
-    # Replace the "password" value with a valid password for the target application
     data = {"username": username, "password": password}
     response = requests.post(f"{target_url}/login", data=data, proxies={"http": f"http://{proxy_address}:{proxy_port}", "https": f"http://{proxy_address}:{proxy_port}"})
 
