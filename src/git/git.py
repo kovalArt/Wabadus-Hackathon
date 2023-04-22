@@ -103,7 +103,7 @@ def get_gitlab_public_repos():
         for repository in repositories:
             repos[GIT_PROVIDER.GITLAB].append(repository['name'])
     else:
-        print(f"No GitHub user found for {company_name}")
+        print(f"No GitLab user found for {company_name}")
         
 def check_gitlab_repos():
     get_gitlab_public_repos()
@@ -115,7 +115,7 @@ def check_gitlab_repos():
             results[GIT_PROVIDER.GITLAB].append(data)   
             
     else:
-        print(f"No GitHub repos found for {company_name}")
+        print(f"No GitLab repos found for {company_name}")
 
 
 
