@@ -58,7 +58,7 @@ else:
 
 # Loop through the list of usernames
 for username in usernames:
-
+    for password in passwords:
     # Send a login request to the target URL with the username
     # Assumes the login page is at a path like "/login"
     # Assumes the login form has fields for "username" and "password"
