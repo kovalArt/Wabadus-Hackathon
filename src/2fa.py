@@ -79,19 +79,6 @@ for username in usernames:
         else:
             output += f"No code reuse vulnerability detected for username '{username}'\n"
 
-#                                                             User enumeration
-
-# Loop through the list of usernames and send requests to the target URL with each username
-for username in usernames:
-    # Send a request to the target URL with the current username
-    response = requests.get(target_url, headers={"username": username})
-
-    # Check if the response contains a message indicating whether the username is valid or not
-    if "invalid username" in response.text:
-        output += f"{username} is an invalid username\n"
-    else:
-        output += f"{username} is a valid username\n"
-
 #                                                       Vulnerable 2FA implementation
 
 # Send a request with a crafted token to test for a vulnerable implementation
