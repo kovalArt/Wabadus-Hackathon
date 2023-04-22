@@ -1,0 +1,8 @@
+[extend]
+useDefault = true
+
+[[rules]]
+    description = "mp5apr1 user hash"
+    id = "user-hash"
+    regex = '''trivera:.*'''
+    tags = ['user', 'XAMPP']
