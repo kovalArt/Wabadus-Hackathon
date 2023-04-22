@@ -1,35 +1,34 @@
-import nexpose
-import time
+import yaml
+import os
+import sys
+import json
+import c7n.utils
+import c7n.schema
+from c7n import Policy, Tag, s3
+from c7n.executor import MainThreadExecutor
 
-# Authenticate with the Nexpose console
-console = nexpose.Console('https://nexpose.example.com:3780', 'username', 'password')
-console.login()
+config_path = "/path/to/custodian.yml"
+policy_path = "/path/to/vulnerability_policy.yml"
 
-# Create a new site for scanning cloud vulnerabilities
-site_name = 'Cloud Vulnerability Scan'
-site = nexpose.Site(site_name)
-site.add_host('private-cloud.example.com')
-site.save()
+# Load the Cloud Custodian configuration
+with open(config_path, 'r') as f:
+    config = yaml.load(f)
 
-# Start the vulnerability scan
-scan_id = console.scan_site(site.id)
-print('Scan started with ID:', scan_id)
+# Load the vulnerability policy
+with open(policy_path, 'r') as f:
+    policy_config = yaml.load(f)
 
-# Wait for the scan to complete
-while console.scan_status(scan_id) not in ('finished', 'canceled', 'error'):
-    print('Scan in progress...')
-    time.sleep(60)
+# Create a new policy object
+policy = Policy(policy_config, config)
 
-# Retrieve the scan results
-scan_data = console.site_scan_data(scan_id)
-vulnerabilities = scan_data['vulnerabilities']
+# Set the output directory for the policy
+policy.data['output_dir'] = output_dir
 
-# Print a summary of the vulnerabilities found
-print('Cloud Vulnerability Scan Results:')
-print('--------------------------------')
-for vulnerability in vulnerabilities:
-    print('Vulnerability:', vulnerability['title'])
-    print('Severity:', vulnerability['severity'])
-    print('Description:', vulnerability['description'])
-    print('Solution:', vulnerability['solution'])
-    print('--------------------------------')
+# Execute the policy
+executor = MainThreadExecutor(policy)
+results = list(executor.run())
+
+# Write the results to a log file
+with open("output.txt", "w") as f:
+    f.write("Results of 2fa test:\n")
+    f.write(results, f, indent=4)
