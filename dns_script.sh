@@ -1,0 +1,1 @@
+amass enum -src -ip -d example.com
