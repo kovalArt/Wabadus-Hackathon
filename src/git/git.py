@@ -19,10 +19,10 @@ class GIT_PROVIDER(enum.Enum):
 # from which providers to search from
 scan_repos: list[GIT_PROVIDER] = [
     # GIT_PROVIDER.GITHUB,
-    GIT_PROVIDER.GITLAB
+    # GIT_PROVIDER.GITLAB
     ]
-if len(scan_repos) == 0:
-    raise Exception("scan_repos not defined")
+# if len(scan_repos) == 0:
+#     raise Exception("scan_repos not defined")
     
 
 repos: dict[GIT_PROVIDER, list[str]] = {
@@ -120,11 +120,31 @@ def generateTldr():
      decodedResults = result.stdout.decode('utf-8')
      
      filenames = decodedResults.splitlines()
+     
+     lines = [
+         f"----- Git leaks for {company_name} -----"
+     ]
 
-     for result in filenames:
-        # TODO: Read it in
-        # TODO: generate a tldr
-         print(result)
+     for fileName in filenames:
+        file = open(f"./data/{company_name}/results/{fileName}", "r")
+        contents = file.read().splitlines()
+        
+        fileParts = fileName.split("_")
+        
+        indexes = [i for i in range(len(contents)) if contents[i].startswith("Secret")]
+
+        
+        lines.append(f"Git provider: {fileParts[1]}")
+        for index in indexes:
+            lines.append(f"Found secret: {contents[index]}" )
+        lines.append('\n')
+        
+        
+        with open("tldr.txt", "w") as file:
+            file.writelines(line + "\n" for line in lines)
+        file.close()
+        
+        # TODO: move tldr file to another place
 
 
 def init():
