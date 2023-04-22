@@ -17,7 +17,10 @@ class GIT_PROVIDER(enum.Enum):
 
 
 # from which providers to search from
-scan_repos: list[GIT_PROVIDER] = [GIT_PROVIDER.GITHUB, GIT_PROVIDER.GITLAB]
+scan_repos: list[GIT_PROVIDER] = [
+    # GIT_PROVIDER.GITHUB,
+    GIT_PROVIDER.GITLAB
+    ]
 if len(scan_repos) == 0:
     raise Exception("scan_repos not defined")
     
@@ -85,9 +88,6 @@ def check_github_repos():
         for repo_name in repos[GIT_PROVIDER.GITHUB]:
             data = run_script(repo_name, GIT_PROVIDER.GITHUB)
             results[GIT_PROVIDER.GITHUB].append(data)      
-            
-    else:
-        print(f"No GitHub repos found for {company_name}")
 
 
 
@@ -113,10 +113,18 @@ def check_gitlab_repos():
         for repo_name in repos[GIT_PROVIDER.GITLAB]:
             data = run_script(repo_name, GIT_PROVIDER.GITLAB)
             results[GIT_PROVIDER.GITLAB].append(data)   
-            
-    else:
-        print(f"No GitLab repos found for {company_name}")
+    
 
+def generateTldr(): 
+     result = subprocess.run(["ls", f"./data/{company_name}/results"], stdout=subprocess.PIPE)
+     decodedResults = result.stdout.decode('utf-8')
+     
+     filenames = decodedResults.splitlines()
+
+     for result in filenames:
+        # TODO: Read it in
+        # TODO: generate a tldr
+         print(result)
 
 
 def init():
@@ -127,7 +135,9 @@ def init():
         check_gitlab_repos()
 
     if GIT_PROVIDER.BITBUCKET in scan_repos:
-        print("BITBUCKET Not defined")
+        raise Exception("BITBUCKET Not supported yet")
         # TODO: check_gitlab_repos()
+        
+    generateTldr()
         
 init()
