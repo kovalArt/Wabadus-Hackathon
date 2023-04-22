@@ -86,10 +86,6 @@ def check_github_repos():
             data = run_script(repo_name, GIT_PROVIDER.GITHUB)
             results[GIT_PROVIDER.GITHUB].append(data)      
             
-            # url = get_public_repo_url(repo_name, GIT_PROVIDER.GITHUB)
-            # result = subprocess.run(["sh", "./git-scanner.sh", url, repo_name, company_name, str(GIT_PROVIDER.GITHUB.value).lower()], stdout=subprocess.PIPE)
-            # decoded = result.stdout.decode('utf-8')
-            # results[GIT_PROVIDER.GITHUB].append(decoded)      
     else:
         print(f"No GitHub repos found for {company_name}")
 
@@ -118,10 +114,6 @@ def check_gitlab_repos():
             data = run_script(repo_name, GIT_PROVIDER.GITLAB)
             results[GIT_PROVIDER.GITLAB].append(data)   
             
-            # url = get_public_repo_url(repo_name, GIT_PROVIDER.GITLAB)
-            # result = subprocess.run(["sh", "./git-scanner.sh", url, repo_name, company_name, str(GIT_PROVIDER.GITLAB.value).lower()], stdout=subprocess.PIPE)
-            # decoded = result.stdout.decode('utf-8')
-            # results[GIT_PROVIDER.GITLAB].append(decoded)
     else:
         print(f"No GitHub repos found for {company_name}")
 
